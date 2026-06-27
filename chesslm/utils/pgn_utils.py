@@ -61,14 +61,12 @@ def clean_moves(raw: str) -> str:
     - Remove anotações de lance (!, ?, !!, ??, !?, ?!)
     - Remove numeração das pretas (1..., 2...)
     - Remove resultado final (1-0, 0-1, 1/2-1/2)
-    - Normaliza espaços (remove espaço após número das brancas: "1. " -> "1.")
     """
     s = _RE_MOVES.sub("", raw)           # remove comentários
     s = _RE_EVAL.sub("", s)              # remove NAGs
     s = _RE_ANNOTATION.sub("", s)        # remove anotações de lance (!?, etc)
     s = _RE_BLACK_NUM.sub("", s)         # remove numeração das pretas
     s = _RE_RESULT.sub("", s)            # remove resultado
-    s = re.sub(r'(\d+)\. ', r'\1.', s)   # remove espaço após número: "1. " -> "1."
     s = re.sub(r'\s+', ' ', s)           # normaliza espaços
     return s.strip()
 

@@ -69,7 +69,7 @@ python data/prepare_dataset.py --input data/players.txt --name finetune
 
 ```bash
 # Pré-treino (lê data/pretrain_train.npy e data/pretrain_val.npy)
-python training/train.py
+python training/train.py --max-iters 5000
 
 # Fine-tuning (lê data/finetune_train.npy e data/finetune_val.npy)
 python training/finetune.py --checkpoint checkpoints/pretrain_final.pt

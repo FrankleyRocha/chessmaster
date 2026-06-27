@@ -5,3 +5,4 @@ chesslm/.pytest_cache
 *.pyc
 chesslm/data/players.txt
 chesslm/data/pretrain.txt
+chesslm/data/tokenizer_word.json
