@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 @dataclass
 class ModelConfig:
     # Arquitetura
-    tokenizer_type: str = "bpe" # "bpe" ou "char"
+    tokenizer_type: str = "word" # "bpe", "char" ou "word"
     vocab_size:     int = 512   # placeholder, sobrescrito pelo tokenizador
     block_size:     int = 512   # contexto máximo em tokens
     n_embd:         int = 256   # dimensão do embedding

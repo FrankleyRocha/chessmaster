@@ -34,7 +34,7 @@ def load_model(checkpoint_path: str, device: str) -> tuple[ChessLM, "ChessTokeni
     model.eval()
 
     # Determina tipo e caminho do tokenizador
-    tok_type = getattr(cfg, "tokenizer_type", "bpe")
+    tok_type = getattr(cfg, "tokenizer_type", "word")
     tok_filename = f"tokenizer_{tok_type}.json"
 
     # Procura o tokenizador no diretório do checkpoint ou em data/

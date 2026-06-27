@@ -226,8 +226,8 @@ def main():
     parser.add_argument("--batch-size",    type=int,   default=64)
     parser.add_argument("--max-iters",     type=int,   default=50_000)
     parser.add_argument("--no-compile",    action="store_true")
-    parser.add_argument("--tokenizer-type", default="bpe", choices=["bpe", "char"],
-                        help="Tipo de tokenizador. Default: bpe")
+    parser.add_argument("--tokenizer-type", default="word", choices=["bpe", "char", "word"],
+                        help="Tipo de tokenizador. Default: word")
     args = parser.parse_args()
 
     cfg_model = ModelConfig(tokenizer_type=args.tokenizer_type)

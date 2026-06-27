@@ -8,6 +8,7 @@ import pytest
 from model.tokenizer import create_tokenizer, load_tokenizer
 from model.tokenizer_char import ChessTokenizerChar
 from model.tokenizer_bpe import ChessTokenizerBPE
+from model.tokenizer_word import ChessTokenizerWord
 
 SAMPLE_GAME = "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O\n"
 
@@ -34,6 +35,10 @@ class TestCreateTokenizer:
     def test_create_char(self):
         tok = create_tokenizer("char")
         assert isinstance(tok, ChessTokenizerChar)
+
+    def test_create_word(self):
+        tok = create_tokenizer("word")
+        assert isinstance(tok, ChessTokenizerWord)
 
     def test_create_invalid_type(self):
         with pytest.raises(ValueError, match="desconhecido"):
@@ -69,6 +74,20 @@ class TestLoadTokenizer:
         finally:
             os.unlink(path)
 
+    def test_load_word(self):
+        tok_orig = create_tokenizer("word")
+
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            path = f.name
+        try:
+            tok_orig.save(path)
+            tok_loaded = load_tokenizer(path, "word")
+            assert isinstance(tok_loaded, ChessTokenizerWord)
+            assert tok_loaded.vocab_size == tok_orig.vocab_size
+            assert tok_loaded.encode("e4") == tok_orig.encode("e4")
+        finally:
+            os.unlink(path)
+
     def test_load_invalid_type(self):
         with pytest.raises(ValueError, match="desconhecido"):
             load_tokenizer("path.json", "wordpiece")
@@ -87,7 +106,13 @@ class TestIntegrationWithConfig:
         tok = create_tokenizer(cfg.tokenizer_type)
         assert isinstance(tok, ChessTokenizerChar)
 
+    def test_create_from_config_type_word(self):
+        from model.config import ModelConfig
+        cfg = ModelConfig(tokenizer_type="word")
+        tok = create_tokenizer(cfg.tokenizer_type)
+        assert isinstance(tok, ChessTokenizerWord)
+
     def test_default_tokenizer_in_config(self):
         from model.config import ModelConfig
         cfg = ModelConfig()
-        assert cfg.tokenizer_type == "bpe"
+        assert cfg.tokenizer_type == "word"

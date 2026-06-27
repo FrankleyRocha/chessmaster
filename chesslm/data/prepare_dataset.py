@@ -24,7 +24,7 @@ def tokenizer_path_for(tokenizer_type: str) -> str:
 
 
 def prepare(input_path: str, name: str, val_split: float = 0.05,
-            tokenizer_type: str = "bpe", bpe_vocab_size: int = 512):
+            tokenizer_type: str = "word", bpe_vocab_size: int = 512):
     input_path = Path(input_path)
     out_dir    = input_path.parent
 
@@ -86,8 +86,8 @@ def main():
                         help="Prefixo dos arquivos de saída. Default: dataset")
     parser.add_argument("--val-split",      type=float, default=0.05,
                         help="Fração para validação. Default: 0.05")
-    parser.add_argument("--tokenizer-type", default="bpe", choices=["bpe", "char"],
-                        help="Tipo de tokenizador. Default: bpe")
+    parser.add_argument("--tokenizer-type", default="word", choices=["bpe", "char", "word"],
+                        help="Tipo de tokenizador. Default: word")
     parser.add_argument("--bpe-vocab-size", type=int, default=512,
                         help="Tamanho do vocabulário BPE (só usado se --tokenizer-type=bpe). Default: 512")
     args = parser.parse_args()
