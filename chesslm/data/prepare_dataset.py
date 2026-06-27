@@ -16,10 +16,15 @@ from pathlib import Path
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from model.tokenizer_bpe import ChessTokenizerBPE
+from model.tokenizer import create_tokenizer
 
 
-def prepare(input_path: str, name: str, val_split: float = 0.05, bpe_vocab_size: int = 512):
+def tokenizer_path_for(tokenizer_type: str) -> str:
+    return f"tokenizer_{tokenizer_type}.json"
+
+
+def prepare(input_path: str, name: str, val_split: float = 0.05,
+            tokenizer_type: str = "bpe", bpe_vocab_size: int = 512):
     input_path = Path(input_path)
     out_dir    = input_path.parent
 
@@ -29,10 +34,16 @@ def prepare(input_path: str, name: str, val_split: float = 0.05, bpe_vocab_size:
 
     print(f"  Caracteres total: {len(text):,}")
 
-    print("Treinando tokenizador BPE...")
-    tok = ChessTokenizerBPE(vocab_size=bpe_vocab_size)
+    kwargs = {}
+    if tokenizer_type == "bpe":
+        kwargs["vocab_size"] = bpe_vocab_size
+
+    print(f"Criando tokenizador ({tokenizer_type})...")
+    tok = create_tokenizer(tokenizer_type, **kwargs)
     tok.train(str(input_path))
-    tok_path = out_dir / "tokenizer_bpe.json"
+
+    tok_filename = tokenizer_path_for(tokenizer_type)
+    tok_path = out_dir / tok_filename
     tok.save(str(tok_path))
     print(f"  Tokenizador: vocab_size={tok.vocab_size}")
 
@@ -69,17 +80,19 @@ def prepare(input_path: str, name: str, val_split: float = 0.05, bpe_vocab_size:
 
 def main():
     parser = argparse.ArgumentParser(description="Prepara dataset para treino")
-    parser.add_argument("--input",         required=True,
+    parser.add_argument("--input",          required=True,
                         help="Arquivo .txt com partidas (uma por linha)")
-    parser.add_argument("--name",          default="dataset",
+    parser.add_argument("--name",           default="dataset",
                         help="Prefixo dos arquivos de saída. Default: dataset")
-    parser.add_argument("--val-split",     type=float, default=0.05,
+    parser.add_argument("--val-split",      type=float, default=0.05,
                         help="Fração para validação. Default: 0.05")
+    parser.add_argument("--tokenizer-type", default="bpe", choices=["bpe", "char"],
+                        help="Tipo de tokenizador. Default: bpe")
     parser.add_argument("--bpe-vocab-size", type=int, default=512,
-                        help="Tamanho do vocabulário BPE. Default: 512")
+                        help="Tamanho do vocabulário BPE (só usado se --tokenizer-type=bpe). Default: 512")
     args = parser.parse_args()
 
-    prepare(args.input, args.name, args.val_split, args.bpe_vocab_size)
+    prepare(args.input, args.name, args.val_split, args.tokenizer_type, args.bpe_vocab_size)
 
 
 if __name__ == "__main__":

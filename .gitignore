@@ -1,0 +1,5 @@
+chesslm/checkpoints/*
+chesslm/data/*.npy
+chesslm/.pytest_cache
+**/__pycache__/
+*.pyc

@@ -163,9 +163,9 @@ class TestChessTokenizerBPE:
 
     def test_compression_ratio(self, trained_tokenizer):
         """BPE deve comprimir melhor ou igual ao char-level."""
-        from model.tokenizer import ChessTokenizer
+        from model.tokenizer_char import ChessTokenizerChar
 
-        tok_char = ChessTokenizer()
+        tok_char = ChessTokenizerChar()
         tok_bpe = trained_tokenizer
 
         test = "1. e4 e5 2. Nf3 Nc6 3. Bb5+ a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O"

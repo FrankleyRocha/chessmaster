@@ -9,12 +9,13 @@ from dataclasses import dataclass, field
 @dataclass
 class ModelConfig:
     # Arquitetura
-    vocab_size: int   = 512     # definido pelo tokenizador BPE
-    block_size: int   = 512     # contexto máximo em tokens (~1500 chars com BPE)
-    n_embd:     int   = 256     # dimensão do embedding
-    n_head:     int   = 8       # cabeças de atenção (n_embd % n_head == 0)
-    n_layer:    int   = 6       # blocos transformer
-    dropout:    float = 0.1     # dropout em atenção e projeções
+    tokenizer_type: str = "bpe" # "bpe" ou "char"
+    vocab_size:     int = 512   # placeholder, sobrescrito pelo tokenizador
+    block_size:     int = 512   # contexto máximo em tokens
+    n_embd:         int = 256   # dimensão do embedding
+    n_head:         int = 8     # cabeças de atenção (n_embd % n_head == 0)
+    n_layer:        int = 6     # blocos transformer
+    dropout:        float = 0.1 # dropout em atenção e projeções
 
     def __post_init__(self):
         assert self.n_embd % self.n_head == 0, \
@@ -27,7 +28,6 @@ class TrainConfig:
     dataset_name:    str   = "pretrain"
     data_dir:        str   = "data"
     val_split:       float = 0.05       # 5% para validação
-    tokenizer_path:  str   = "tokenizer_bpe.json"
 
     # Treino
     batch_size:      int   = 64
