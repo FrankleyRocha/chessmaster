@@ -20,7 +20,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from model.config import ModelConfig, TrainConfig
 from model.model import ChessLM
-from model.tokenizer import ChessTokenizer
+from model.tokenizer_bpe import ChessTokenizerBPE
 
 
 # ─────────────────────────────────────────────
@@ -99,13 +99,13 @@ def train(cfg_model: ModelConfig, cfg_train: TrainConfig):
     train_loader = DataLoader(train_data, cfg_model.block_size, cfg_train.batch_size, device)
     val_loader   = DataLoader(val_data,   cfg_model.block_size, cfg_train.batch_size, device)
 
-    # Tokenizador (para vocab_size)
-    tok_path = data_dir / "tokenizer.json"
+    # Tokenizador BPE (para vocab_size)
+    tok_path = data_dir / "tokenizer_bpe.json"
     if not tok_path.exists():
-        print(f"\n✗ Erro: Tokenizador não encontrado: {tok_path}")
+        print(f"\n✗ Erro: Tokenizador BPE não encontrado: {tok_path}")
         print(f"  Rode primeiro: python data/prepare_dataset.py")
         sys.exit(1)
-    tok = ChessTokenizer.load(str(tok_path))
+    tok = ChessTokenizerBPE.load(str(tok_path))
     cfg_model.vocab_size = tok.vocab_size
 
     # Modelo

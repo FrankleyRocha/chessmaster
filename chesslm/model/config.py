@@ -9,8 +9,8 @@ from dataclasses import dataclass, field
 @dataclass
 class ModelConfig:
     # Arquitetura
-    vocab_size: int   = 64      # definido pelo tokenizador
-    block_size: int   = 512     # contexto máximo em tokens (caracteres)
+    vocab_size: int   = 512     # definido pelo tokenizador BPE
+    block_size: int   = 512     # contexto máximo em tokens (~1500 chars com BPE)
     n_embd:     int   = 256     # dimensão do embedding
     n_head:     int   = 8       # cabeças de atenção (n_embd % n_head == 0)
     n_layer:    int   = 6       # blocos transformer
@@ -27,7 +27,7 @@ class TrainConfig:
     dataset_name:    str   = "pretrain"
     data_dir:        str   = "data"
     val_split:       float = 0.05       # 5% para validação
-    tokenizer_path:  str   = "tokenizer.json"
+    tokenizer_path:  str   = "tokenizer_bpe.json"
 
     # Treino
     batch_size:      int   = 64

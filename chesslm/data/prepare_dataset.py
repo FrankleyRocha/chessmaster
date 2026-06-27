@@ -16,10 +16,10 @@ from pathlib import Path
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from model.tokenizer import ChessTokenizer
+from model.tokenizer_bpe import ChessTokenizerBPE
 
 
-def prepare(input_path: str, name: str, val_split: float = 0.05):
+def prepare(input_path: str, name: str, val_split: float = 0.05, bpe_vocab_size: int = 512):
     input_path = Path(input_path)
     out_dir    = input_path.parent
 
@@ -29,8 +29,10 @@ def prepare(input_path: str, name: str, val_split: float = 0.05):
 
     print(f"  Caracteres total: {len(text):,}")
 
-    tok = ChessTokenizer()
-    tok_path = out_dir / "tokenizer.json"
+    print("Treinando tokenizador BPE...")
+    tok = ChessTokenizerBPE(vocab_size=bpe_vocab_size)
+    tok.train(str(input_path))
+    tok_path = out_dir / "tokenizer_bpe.json"
     tok.save(str(tok_path))
     print(f"  Tokenizador: vocab_size={tok.vocab_size}")
 
@@ -67,15 +69,17 @@ def prepare(input_path: str, name: str, val_split: float = 0.05):
 
 def main():
     parser = argparse.ArgumentParser(description="Prepara dataset para treino")
-    parser.add_argument("--input",     required=True,
+    parser.add_argument("--input",         required=True,
                         help="Arquivo .txt com partidas (uma por linha)")
-    parser.add_argument("--name",      default="dataset",
+    parser.add_argument("--name",          default="dataset",
                         help="Prefixo dos arquivos de saída. Default: dataset")
-    parser.add_argument("--val-split", type=float, default=0.05,
+    parser.add_argument("--val-split",     type=float, default=0.05,
                         help="Fração para validação. Default: 0.05")
+    parser.add_argument("--bpe-vocab-size", type=int, default=512,
+                        help="Tamanho do vocabulário BPE. Default: 512")
     args = parser.parse_args()
 
-    prepare(args.input, args.name, args.val_split)
+    prepare(args.input, args.name, args.val_split, args.bpe_vocab_size)
 
 
 if __name__ == "__main__":

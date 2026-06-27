@@ -59,7 +59,6 @@ def finetune(checkpoint_path: str, cfg: FinetuneConfig):
     import math
     import time
     from training.train import DataLoader, get_lr
-    from model.tokenizer import ChessTokenizer
 
     data_dir = Path(cfg.data_dir)
     name     = cfg.dataset_name

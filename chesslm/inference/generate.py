@@ -19,6 +19,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from model.config import ModelConfig
 from model.model import ChessLM
+from model.tokenizer_bpe import ChessTokenizerBPE
 from model.tokenizer import ChessTokenizer
 
 
@@ -31,17 +32,17 @@ def load_model(checkpoint_path: str, device: str) -> tuple[ChessLM, ChessTokeniz
     model.load_state_dict(ckpt["model"])
     model.eval()
 
-    # Tenta carregar tokenizador do diretório do checkpoint
+    # Tenta carregar tokenizador BPE do diretório do checkpoint
     ckpt_dir = Path(checkpoint_path).parent
-    tok_path = ckpt_dir.parent / "data" / "tokenizer.json"
+    tok_path = ckpt_dir.parent / "data" / "tokenizer_bpe.json"
     if not tok_path.exists():
-        tok_path = ckpt_dir / "tokenizer.json"
+        tok_path = ckpt_dir / "tokenizer_bpe.json"
 
     if tok_path.exists():
-        tok = ChessTokenizer.load(str(tok_path))
+        tok = ChessTokenizerBPE.load(str(tok_path))
     else:
         tok = ChessTokenizer()
-        print("Aviso: tokenizer.json não encontrado, usando padrão")
+        print("Aviso: tokenizer_bpe.json não encontrado, usando tokenizador char-level")
 
     return model, tok
 
