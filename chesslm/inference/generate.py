@@ -19,10 +19,12 @@ import torch
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from model.config import ModelConfig
 from model.model import ChessLM
-from model.tokenizer import ChessTokenizer
+from model.tokenizer import load_tokenizer
+from model.tokenizer_char import ChessTokenizerChar
+from model.tokenizer_bpe import ChessTokenizerBPE
 
 
-def load_model(checkpoint_path: str, device: str) -> tuple[ChessLM, ChessTokenizer]:
+def load_model(checkpoint_path: str, device: str) -> tuple[ChessLM, "ChessTokenizerChar | ChessTokenizerBPE"]:
     """Carrega modelo e tokenizador de um checkpoint."""
     ckpt = torch.load(checkpoint_path, map_location=device, weights_only=False)
 
@@ -31,24 +33,28 @@ def load_model(checkpoint_path: str, device: str) -> tuple[ChessLM, ChessTokeniz
     model.load_state_dict(ckpt["model"])
     model.eval()
 
-    # Tenta carregar tokenizador do diretório do checkpoint
+    # Determina tipo e caminho do tokenizador
+    tok_type = getattr(cfg, "tokenizer_type", "word")
+    tok_filename = f"tokenizer_{tok_type}.json"
+
+    # Procura o tokenizador no diretório do checkpoint ou em data/
     ckpt_dir = Path(checkpoint_path).parent
-    tok_path = ckpt_dir.parent / "data" / "tokenizer.json"
+    tok_path = ckpt_dir.parent / "data" / tok_filename
     if not tok_path.exists():
-        tok_path = ckpt_dir / "tokenizer.json"
+        tok_path = ckpt_dir / tok_filename
 
     if tok_path.exists():
-        tok = ChessTokenizer.load(str(tok_path))
+        tok = load_tokenizer(str(tok_path), tok_type)
     else:
-        tok = ChessTokenizer()
-        print("Aviso: tokenizer.json não encontrado, usando padrão")
+        tok = ChessTokenizerChar()
+        print(f"Aviso: {tok_filename} não encontrado, usando tokenizador char-level")
 
     return model, tok
 
 
 def generate_moves(
     model: ChessLM,
-    tok: ChessTokenizer,
+    tok: ChessTokenizerChar | ChessTokenizerBPE,
     prompt: str,
     num_moves: int = 5,
     temperature: float = 1.0,
@@ -93,7 +99,7 @@ def generate_moves(
     return generated
 
 
-def interactive_mode(model: ChessLM, tok: ChessTokenizer, device: str):
+def interactive_mode(model: ChessLM, tok: ChessTokenizerChar | ChessTokenizerBPE, device: str):
     """Modo interativo: usuário digita a partida, modelo responde."""
     print("\n" + "═" * 60)
     print("  ChessLM — Modo Interativo")

@@ -20,7 +20,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from model.config import ModelConfig, TrainConfig
 from model.model import ChessLM
-from model.tokenizer import ChessTokenizer
+from model.tokenizer import load_tokenizer
 
 
 # ─────────────────────────────────────────────
@@ -100,12 +100,13 @@ def train(cfg_model: ModelConfig, cfg_train: TrainConfig):
     val_loader   = DataLoader(val_data,   cfg_model.block_size, cfg_train.batch_size, device)
 
     # Tokenizador (para vocab_size)
-    tok_path = data_dir / "tokenizer.json"
+    tok_filename = f"tokenizer_{cfg_model.tokenizer_type}.json"
+    tok_path = data_dir / tok_filename
     if not tok_path.exists():
         print(f"\n✗ Erro: Tokenizador não encontrado: {tok_path}")
-        print(f"  Rode primeiro: python data/prepare_dataset.py")
+        print(f"  Rode primeiro: python data/prepare_dataset.py --tokenizer-type {cfg_model.tokenizer_type}")
         sys.exit(1)
-    tok = ChessTokenizer.load(str(tok_path))
+    tok = load_tokenizer(str(tok_path), cfg_model.tokenizer_type)
     cfg_model.vocab_size = tok.vocab_size
 
     # Modelo
@@ -221,13 +222,15 @@ def train(cfg_model: ModelConfig, cfg_train: TrainConfig):
 
 def main():
     parser = argparse.ArgumentParser(description="Pré-treino do ChessLM")
-    parser.add_argument("--device",     default="cuda")
-    parser.add_argument("--batch-size", type=int,   default=64)
-    parser.add_argument("--max-iters",  type=int,   default=50_000)
-    parser.add_argument("--no-compile", action="store_true")
+    parser.add_argument("--device",        default="cuda")
+    parser.add_argument("--batch-size",    type=int,   default=64)
+    parser.add_argument("--max-iters",     type=int,   default=50_000)
+    parser.add_argument("--no-compile",    action="store_true")
+    parser.add_argument("--tokenizer-type", default="word", choices=["bpe", "char", "word"],
+                        help="Tipo de tokenizador. Default: word")
     args = parser.parse_args()
 
-    cfg_model = ModelConfig()
+    cfg_model = ModelConfig(tokenizer_type=args.tokenizer_type)
     cfg_train = TrainConfig()
     cfg_train.device     = args.device
     cfg_train.batch_size = args.batch_size

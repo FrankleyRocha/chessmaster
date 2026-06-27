@@ -4,3 +4,4 @@ requests>=2.28.0
 tqdm>=4.65.0
 zstandard>=0.21.0
 chess>=1.9.0
+tokenizers>=0.15.0
