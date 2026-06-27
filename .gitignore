@@ -3,3 +3,5 @@ chesslm/data/*.npy
 chesslm/.pytest_cache
 **/__pycache__/
 *.pyc
+chesslm/data/players.txt
+chesslm/data/pretrain.txt
